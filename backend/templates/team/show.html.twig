@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ team.name }}{% endblock %}
+
+{% block body %}
+    <h1>{{ team.name }}</h1>
+    <p>Description: {{ team.description }}</p>
+    <p>Area: {{ team.area }}</p>
+
+    <h2>Members</h2>
+    <ul>
+        {% for member in team.members %}
+            <li>{{ member.user.username }}</li>
+        {% endfor %}
+    </ul>
+
+    {% if app.user and not app.user.teamMembers.contains(team) %}
+        <form action="{{ path('app_team_join', {'id': team.id}) }}" method="post">
+            <button type="submit" class="btn btn-success">Join Team</button>
+        </form>
+    {% endif %}
+{% endblock %}
