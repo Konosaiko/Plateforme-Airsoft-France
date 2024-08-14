@@ -25,13 +25,11 @@ class TeamVoter extends Voter
         /** @var Team $team */
         $team = $subject;
 
-        switch ($attribute) {
-            case 'TEAM_EDIT':
-            case 'TEAM_DELETE':
-                return $this->canEditOrDelete($team, $user);
-        }
+        return match ($attribute) {
+            'TEAM_EDIT', 'TEAM_DELETE' => $this->canEditOrDelete($team, $user),
+            default => false,
+        };
 
-        return false;
     }
 
     private function canEditOrDelete(Team $team, User $user): bool
