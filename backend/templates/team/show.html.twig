@@ -3,6 +3,7 @@
 {% block title %}{{ team.name }}{% endblock %}
 
 {% block body %}
+    <a href="{{ path('app_teams_list') }}">Retourner à la liste des équipes</a>
     <h1>{{ team.name }}</h1>
     <p>Description: {{ team.description }}</p>
     <p>Area: {{ team.area }}</p>
@@ -14,9 +15,15 @@
         {% endfor %}
     </ul>
 
-    {% if app.user and not app.user.teamMembers.contains(team) %}
-        <form action="{{ path('app_team_join', {'id': team.id}) }}" method="post">
-            <button type="submit" class="btn btn-success">Join Team</button>
-        </form>
+    {% if app.user %}
+        {% if not app.user.isMemberOf(team) %}
+            <form action="{{ path('app_team_join', {'id': team.id}) }}" method="post">
+                <button type="submit" class="btn btn-success">Join Team</button>
+            </form>
+        {% else %}
+            <form action="{{ path('app_team_leave', {'id': team.id}) }}" method="post">
+                <button type="submit" class="btn btn-danger">Leave Team</button>
+            </form>
+        {% endif %}
     {% endif %}
 {% endblock %}

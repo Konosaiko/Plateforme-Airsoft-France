@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create New Team{% endblock %}
+
+{% block body %}
+    <h1>Create New Team</h1>
+
+    {{ form_start(form, {'action': path('app_team_create')}) }}
+    {{ form_widget(form) }}
+    <button type="submit" class="btn btn-primary">Create Team</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('app_teams_list') }}" class="btn btn-secondary">Back to List</a>
+{% endblock %}

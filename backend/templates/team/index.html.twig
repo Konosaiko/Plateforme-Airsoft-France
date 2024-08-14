@@ -5,6 +5,10 @@
 {% block body %}
     <h1>Teams</h1>
 
+    {% if is_granted('ROLE_USER') %}
+        <a href="{{ path('app_team_create') }}" class="btn btn-primary">Create New Team</a>
+    {% endif %}
+
     <ul>
         {% for team in teams %}
             <li>
