@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Team;
 use App\Entity\TeamMember;
+use App\Form\TeamType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +22,27 @@ class TeamController extends AbstractController
         ]);
     }
 
+    #[Route('/create', name: "app_team_create", methods: ['GET', 'POST'])]
+    public function create(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $team = new Team();
+        $form = $this->createForm(TeamType::class, $team);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $team->setCreator($this->getUser());
+            $entityManager->persist($team);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Team has been created.');
+            return $this->redirectToRoute('app_team_show', ['id' => $team->getId()]);
+        }
+
+        return $this->render('team/create.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
     #[Route('/{id}', name: 'app_team_show', methods: ['GET'])]
     public function show(Team $team): Response
     {
@@ -28,6 +50,8 @@ class TeamController extends AbstractController
             'team' => $team,
         ]);
     }
+
+
 
     #[Route('/{id}/join', name: 'app_team_join', methods: ['POST'])]
     public function join(Request $request, Team $team, EntityManagerInterface $entityManager): Response
@@ -52,6 +76,30 @@ class TeamController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'You have successfully joined the team!');
+        }
+
+        return $this->redirectToRoute('app_team_show', ['id' => $team->getId()]);
+    }
+
+    #[Route('/{id}/leave', name: 'app_team_leave', methods: ['POST'])]
+    public function leave(Team $team, EntityManagerInterface $entityManager): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_USER');
+
+        $user = $this->getUser();
+
+        $teamMember = $entityManager->getRepository(TeamMember::class)->findOneBy([
+            'team' => $team,
+            'user' => $user,
+        ]);
+
+        if ($teamMember) {
+            $entityManager->remove($teamMember);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'You have successfully left the team.');
+        } else {
+            $this->addFlash('warning', 'You are not a member of this team.');
         }
 
         return $this->redirectToRoute('app_team_show', ['id' => $team->getId()]);
