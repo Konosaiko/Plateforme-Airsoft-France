@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Team: {{ team.name }}{% endblock %}
+
+{% block body %}
+    <h1>Edit Team: {{ team.name }}</h1>
+
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button type="submit" class="btn btn-primary">Update Team</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('app_team_show', {'id': team.id}) }}" class="btn btn-secondary">Cancel</a>
+{% endblock %}
