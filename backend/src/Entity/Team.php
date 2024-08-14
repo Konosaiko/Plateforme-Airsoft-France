@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TeamRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Team
 {
     #[ORM\Id]
@@ -33,6 +34,9 @@ class Team
      */
     #[ORM\OneToMany(targetEntity: TeamMember::class, mappedBy: 'team')]
     private Collection $members;
+
+    #[ORM\ManyToOne(inversedBy: 'teams')]
+    private ?User $creator = null;
 
     public function __construct()
     {
@@ -92,6 +96,12 @@ class Team
         return $this;
     }
 
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
+
     /**
      * @return Collection<int, TeamMember>
      */
@@ -118,6 +128,18 @@ class Team
                 $member->setTeam(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCreator(): ?User
+    {
+        return $this->creator;
+    }
+
+    public function setCreator(?User $creator): static
+    {
+        $this->creator = $creator;
 
         return $this;
     }

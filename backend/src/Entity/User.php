@@ -60,9 +60,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: TeamMember::class, mappedBy: 'user')]
     private Collection $teamMembers;
 
+    /**
+     * @var Collection<int, Team>
+     */
+    #[ORM\OneToMany(targetEntity: Team::class, mappedBy: 'creator')]
+    private Collection $teams;
+
     public function __construct()
     {
         $this->teamMembers = new ArrayCollection();
+        $this->teams = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -250,6 +257,47 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($teamMember->getUser() === $this) {
                 $teamMember->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+    public function isMemberOf(Team $team): bool
+    {
+        foreach ($this->teamMembers as $teamMember) {
+            if ($teamMember->getTeam()->getId() === $team->getId()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return Collection<int, Team>
+     */
+    public function getTeams(): Collection
+    {
+        return $this->teams;
+    }
+
+    public function addTeam(Team $team): static
+    {
+        if (!$this->teams->contains($team)) {
+            $this->teams->add($team);
+            $team->setCreator($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTeam(Team $team): static
+    {
+        if ($this->teams->removeElement($team)) {
+            // set the owning side to null (unless already changed)
+            if ($team->getCreator() === $this) {
+                $team->setCreator(null);
             }
         }
 
