@@ -36,9 +36,7 @@
             </form>
         {% endif %}
         {% if is_granted('TEAM_EDIT', team) %}
-            <form action="{{ path('app_team_edit', {'id': team.id}) }}" method="post" onsubmit="return confirm('Are you sure you want to edit this team?');">
-                <button></button>
-            </form>
+            <a href="{{ path('app_team_edit', {'id': team.id}) }}" class="btn btn-primary">Edit Team</a>
         {% endif %}
     {% endif %}
 {% endblock %}
