@@ -22,6 +22,11 @@ class TeamMember
     #[ORM\Column]
     private ?\DateTimeImmutable $joinedAt = null;
 
+    public function __construct()
+    {
+        $this->joinedAt = new \DateTimeImmutable();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -56,10 +61,17 @@ class TeamMember
         return $this->joinedAt;
     }
 
-    public function setJoinedAt(\DateTimeImmutable $joinedAt): static
+    public function setJoinedAt(\DateTimeImmutable $joinedAt): self
     {
         $this->joinedAt = $joinedAt;
-
         return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function setJoinedAtValue(): void
+    {
+        if ($this->joinedAt === null) {
+            $this->joinedAt = new \DateTimeImmutable();
+        }
     }
 }
