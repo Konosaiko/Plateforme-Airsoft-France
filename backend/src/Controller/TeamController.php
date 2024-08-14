@@ -5,11 +5,13 @@ namespace App\Controller;
 use App\Entity\Team;
 use App\Entity\TeamMember;
 use App\Form\TeamType;
+use App\Security\Voter\TeamVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class TeamController extends AbstractController
 {
@@ -51,6 +53,18 @@ class TeamController extends AbstractController
         ]);
     }
 
+
+    #[Route('/{id}/delete', name: 'app_team_delete', methods: ['POST'])]
+    #[IsGranted('TEAM_DELETE', subject: 'team')]
+    public function delete(Request $request, Team $team, EntityManagerInterface $entityManager): Response
+    {
+        $entityManager->remove($team);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Team has been deleted successfully.');
+
+        return $this->redirectToRoute('app_teams_list');
+    }
 
 
     #[Route('/{id}/join', name: 'app_team_join', methods: ['POST'])]
