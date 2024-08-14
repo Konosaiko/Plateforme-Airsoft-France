@@ -1,3 +1,7 @@
+
+
+
+
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ team.name }}{% endblock %}
@@ -22,7 +26,18 @@
             </form>
         {% else %}
             <form action="{{ path('app_team_leave', {'id': team.id}) }}" method="post">
-                <button type="submit" class="btn btn-danger">Leave Team</button>
+                <button type="submit" class="btn btn-warning">Leave Team</button>
+            </form>
+        {% endif %}
+
+        {% if is_granted('TEAM_DELETE', team) %}
+            <form action="{{ path('app_team_delete', {'id': team.id}) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this team?');">
+                <button type="submit" class="btn btn-danger">Delete Team</button>
+            </form>
+        {% endif %}
+        {% if is_granted('TEAM_EDIT', team) %}
+            <form action="{{ path('app_team_edit', {'id': team.id}) }}" method="post" onsubmit="return confirm('Are you sure you want to edit this team?');">
+                <button></button>
             </form>
         {% endif %}
     {% endif %}
