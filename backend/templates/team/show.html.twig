@@ -12,6 +12,17 @@
     <p>Description: {{ team.description }}</p>
     <p>Area: {{ team.area }}</p>
 
+    {% if team.status == 'pending' %}
+        <p class="alert alert-warning">This team is pending approval.</p>
+    {% elseif team.status == 'rejected' %}
+        <p class="alert alert-danger">
+            This team has been rejected.
+            {% if team.rejectionReason %}
+                Reason: {{ team.rejectionReason }}
+            {% endif %}
+        </p>
+    {% endif %}
+
     <h2>Members</h2>
     <ul>
         {% for member in team.members %}
