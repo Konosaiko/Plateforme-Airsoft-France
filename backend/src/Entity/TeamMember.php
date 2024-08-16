@@ -19,6 +19,17 @@ class TeamMember
     #[ORM\ManyToOne(inversedBy: 'team')]
     private ?User $user = null;
 
+    #[ORM\Column(type: 'string', length: 20)]
+    private ?string $role = 'Member';
+
+    public const ROLE_LEAD = 'LEAD';
+    public const ROLE_OFFICER = 'OFFICER';
+
+    public const ROLE_MEMBER = 'MEMBER';
+
+    #[ORM\Column(length: 20)]
+    private ?string $status = 'pending';
+
     #[ORM\Column]
     private ?\DateTimeImmutable $joinedAt = null;
 
@@ -44,6 +55,35 @@ class TeamMember
         return $this;
     }
 
+    public function getRole(): string
+    {
+        return $this->role;
+    }
+
+    public function setRole(string $role): static
+    {
+        if (!in_array($role, [self::ROLE_LEAD, self::ROLE_OFFICER, self::ROLE_MEMBER])) {
+            throw new \InvalidArgumentException("Invalid role");
+        }
+        $this->role = $role;
+        return $this;
+    }
+
+    public function isLead(): bool
+    {
+        return $this->role === self::ROLE_LEAD;
+    }
+
+    public function isOfficer(): bool
+    {
+        return $this->role === self::ROLE_OFFICER;
+    }
+
+    public function isMember(): bool
+    {
+        return $this->role === self::ROLE_MEMBER;
+    }
+
     public function getUser(): ?User
     {
         return $this->user;
@@ -54,6 +94,32 @@ class TeamMember
         $this->user = $user;
 
         return $this;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    public function approve(): void
+    {
+        $this->status = 'approved';
+    }
+
+    public function reject(): void
+    {
+        $this->status = 'rejected';
     }
 
     public function getJoinedAt(): ?\DateTimeImmutable
