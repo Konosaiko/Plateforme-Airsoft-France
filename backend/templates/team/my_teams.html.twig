@@ -1,0 +1,38 @@
+{# templates/team/my_teams.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}My Teams{% endblock %}
+
+{% block body %}
+    <h1>My Teams</h1>
+    {% if teams is empty %}
+        <p>You haven't created any teams yet.</p>
+        <a href="{{ path('app_team_create') }}" class="btn btn-primary">Create a Team</a>
+    {% else %}
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Team Name</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for team in teams %}
+                <tr>
+                    <td>{{ team.name }}</td>
+                    <td>{{ team.status }}</td>
+                    <td>
+                        <a href="{{ path('app_team_show', {'id': team.id}) }}" class="btn btn-sm btn-info">View</a>
+                        <a href="{{ path('app_team_delete', {'id': team.id}) }}" class="btn btn-sm btn-warning">Delete</a>
+                        <a href="{{ path('app_team_edit', {'id': team.id}) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="{{ path('app_team_manage_requests', {'id': team.id}) }}" class="btn btn-sm btn-primary">Manage Requests</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <a href="{{ path('app_team_create') }}" class="btn btn-success">Create Another Team</a>
+    {% endif %}
+{% endblock %}
