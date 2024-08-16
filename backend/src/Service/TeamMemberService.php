@@ -76,6 +76,31 @@ class TeamMemberService
 
     public function promoteToOfficer(TeamMember $teamMember): void
     {
-        
+        if ($teamMember->getRole() === TeamMember::ROLE_LEAD) {
+            throw new \InvalidArgumentException("Cannot promote the leader");
+        }
+
+        $teamMember->setRole(TeamMember::ROLE_OFFICER);
+        $this->entityManager->flush();
+
+        $this->notificationService->createNotification(
+            $teamMember->getUser(),
+            "You have been promoted to Officer in team '{$teamMember->getTeam()->getName()}'."
+        );
+    }
+
+    public function demoteToSoldier(TeamMember $teamMember): void
+    {
+        if ($teamMember->getRole() === TeamMember::ROLE_LEAD) {
+            throw new \InvalidArgumentException("Cannot demote the leader");
+        }
+
+        $teamMember->setRole(TeamMember::ROLE_MEMBER);
+        $this->entityManager->flush();
+
+        $this->notificationService->createNotification(
+            $teamMember->getUser(),
+            "You have been demoted to solidier in team '{$teamMember->getTeam()->getName()}'."
+        );
     }
 }
