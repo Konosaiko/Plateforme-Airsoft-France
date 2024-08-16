@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block body %}
+    <h1>Notifications</h1>
+
+    {% if notifications is empty %}
+        <p>You have no notifications.</p>
+    {% else %}
+        <ul class="notifications-list">
+            {% for notification in notifications %}
+                <li class="notification {% if notification.isRead %}notification-read{% else %}notification-unread{% endif %}">
+                    <div class="notification-message">{{ notification.message }}</div>
+                    <div class="notification-date">{{ notification.createdAt|date('Y-m-d H:i:s') }}</div>
+                    {% if not notification.isRead %}
+                        <form action="{{ path('app_notification_mark_as_read', {'id': notification.id}) }}" method="post" class="notification-action">
+                            <button type="submit">Mark as read</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .notifications-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .notification {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .notification-unread {
+            background-color: #f0f0f0;
+        }
+        .notification-read {
+            background-color: #ffffff;
+            color: #888;
+        }
+        .notification-message {
+            font-weight: bold;
+        }
+        .notification-date {
+            font-size: 0.8em;
+            color: #666;
+        }
+        .notification-action {
+            margin-top: 5px;
+        }
+    </style>
+{% endblock %}
