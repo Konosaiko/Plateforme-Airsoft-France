@@ -26,7 +26,20 @@
     <h2>Members</h2>
     <ul>
         {% for member in team.members %}
-            <li>{{ member.user.username }}</li>
+            <li>
+                {{ member.user.username }} - {{ member.role }}
+                {% if is_granted('TEAM_MANAGE', team) and not member.isLead %}
+                    {% if member.isMember %}
+                        <form action="{{ path('app_team_member_promote', {'id': member.id}) }}" method="post" style="display: inline;">
+                            <button type="submit">Promote to Officer</button>
+                        </form>
+                    {% else %}
+                        <form action="{{ path('app_team_member_demote', {'id': member.id}) }}" method="post" style="display: inline;">
+                            <button type="submit">Demote to Soldier</button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+            </li>
         {% endfor %}
     </ul>
 
