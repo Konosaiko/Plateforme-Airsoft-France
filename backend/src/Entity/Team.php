@@ -26,6 +26,12 @@ class Team
     #[ORM\Column(length: 255)]
     private ?string $area = null;
 
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $status = 'pending';
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $rejectionReason = null;
+
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
@@ -82,6 +88,43 @@ class Team
         $this->area = $area;
 
         return $this;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    public function getRejectionReason(): ?string
+    {
+        return $this->rejectionReason;
+    }
+
+    public function setRejectionReason(?string $rejectionReason): self
+    {
+        $this->rejectionReason = $rejectionReason;
+        return $this;
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    public function approve(): void
+    {
+        $this->status = 'approved';
+    }
+
+    public function reject(): void
+    {
+        $this->status = 'rejected';
     }
 
     public function getCreatedAt(): ?\DateTimeImmutable
