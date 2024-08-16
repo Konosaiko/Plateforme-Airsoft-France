@@ -1,0 +1,25 @@
+{# templates/admin/team/pending.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Pending Teams</h1>
+
+    {% for team in pendingTeams %}
+        <div>
+            <h2>{{ team.name }}</h2>
+            <p>Created by: {{ team.creator.username }}</p>
+
+            <form action="{{ path('app_admin_team_approve', {'id': team.id}) }}" method="post" style="display: inline;">
+                <button type="submit">Approve</button>
+            </form>
+
+            <form action="{{ path('app_admin_team_reject', {'id': team.id}) }}" method="post" style="display: inline;">
+                <textarea name="rejection_reason" placeholder="Reason for rejection" required></textarea>
+                <button type="submit">Reject</button>
+            </form>
+        </div>
+    {% else %}
+        <p>No pending teams.</p>
+    {% endfor %}
+{% endblock %}
