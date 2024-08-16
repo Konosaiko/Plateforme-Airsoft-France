@@ -38,7 +38,7 @@ class Team
     /**
      * @var Collection<int, TeamMember>
      */
-    #[ORM\OneToMany(targetEntity: TeamMember::class, mappedBy: 'team')]
+    #[ORM\OneToMany(targetEntity: TeamMember::class, mappedBy: 'team', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $members;
 
     #[ORM\ManyToOne(inversedBy: 'teams')]
