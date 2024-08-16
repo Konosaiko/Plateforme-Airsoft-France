@@ -91,7 +91,7 @@ class TeamController extends AbstractController
 
         $this->addFlash('success', 'Team has been deleted successfully.');
 
-        return $this->redirectToRoute('app_teams_list');
+        return $this->redirectToRoute('app_my_teams');
     }
 
     #[Route('/team/{id}/edit', name: 'app_team_edit', methods: ['GET', 'POST'])]
@@ -186,5 +186,34 @@ class TeamController extends AbstractController
 
         $this->addFlash('success', 'Join request rejected.');
         return $this->redirectToRoute('app_team_manage_requests', ['id' => $teamMember->getTeam()->getId()]);
+    }
+
+    #[Route('/team-member/{id}/promote', name: 'app_team_member_promote', methods: ['POST'])]
+    public function promote(TeamMember $teamMember): Response
+    {
+        $this->denyAccessUnlessGranted('TEAM_MANAGE', $teamMember->getTeam());
+
+        try {
+            $this->teamMemberService->promoteToOfficer($teamMember);
+            $this->addFlash('success', 'Team member has been promoted to officer.');
+        } catch (\InvalidArgumentException $e) {
+            $this->addFlash('error', $e->getMessage());
+        }
+
+        return $this->redirectToRoute('app_team_show', ['id' => $teamMember->getTeam()->getId()]);
+    }
+
+    #[Route('/team-member/{id}/demote', name: 'app_team_member_demote', methods: ['POST'])]
+    public function demote(TeamMember $teamMember): Response
+    {
+        $this->denyAccessUnlessGranted('TEAM_MANAGE', $teamMember->getTeam());
+
+        try {
+            $this->teamMemberService->demoteToSoldier($teamMember);
+            $this->addFlash('success', 'Team member has been demoted to soldier.');
+        } catch (\InvalidArgumentException $e) {
+            $this->addFlash('error', $e->getMessage());
+        }
+        return $this->redirectToRoute('app_team_show', ['id' => $teamMember->getTeam()->getId()]);
     }
 }
