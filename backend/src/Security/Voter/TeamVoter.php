@@ -11,7 +11,7 @@ class TeamVoter extends Voter
 {
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return in_array($attribute, ['TEAM_EDIT', 'TEAM_DELETE'])
+        return in_array($attribute, ['TEAM_EDIT', 'TEAM_DELETE', 'TEAM_MANAGE'])
             && $subject instanceof Team;
     }
 
@@ -26,7 +26,7 @@ class TeamVoter extends Voter
         $team = $subject;
 
         return match ($attribute) {
-            'TEAM_EDIT', 'TEAM_DELETE' => $this->canEditOrDelete($team, $user),
+            'TEAM_EDIT', 'TEAM_DELETE', 'TEAM_MANAGE' => $this->canEditOrDelete($team, $user),
             default => false,
         };
 
