@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Manage Join Requests for {{ team.name }}{% endblock %}
+
+{% block body %}
+    <h1>Manage Join Requests for {{ team.name }}</h1>
+
+    {% if pendingRequests is empty %}
+        <p>No pending requests for this team.</p>
+    {% else %}
+        <ul>
+            {% for request in pendingRequests %}
+                <li>
+                    {{ request.user.username }} wants to join
+                    <form action="{{ path('app_team_request_approve', {'id': request.id}) }}" method="post" style="display: inline;">
+                        <button type="submit">Approve</button>
+                    </form>
+                    <form action="{{ path('app_team_request_reject', {'id': request.id}) }}" method="post" style="display: inline;">
+                        <button type="submit">Reject</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
