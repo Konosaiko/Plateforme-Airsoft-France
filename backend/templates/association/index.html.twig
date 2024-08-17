@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Associations{% endblock %}
+
+{% block body %}
+    <h1>Associations</h1>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <a href="{{ path('app_association_new') }}" class="btn btn-primary mb-3">Create New Association</a>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for association in associations %}
+            <tr>
+                <td>{{ association.name }}</td>
+                <td>{{ association.email }}</td>
+                <td>
+                    <a href="{{ path('app_association_show', {'id': association.id}) }}" class="btn btn-sm btn-info">View</a>
+                    <a href="{{ path('app_association_edit', {'id': association.id}) }}" class="btn btn-sm btn-warning">Edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3">No associations found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
