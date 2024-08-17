@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Association;
 
+use App\Entity\User;
 use App\Repository\AssociationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -43,12 +44,18 @@ class Association
     #[ORM\OneToMany(targetEntity: AssociationMember::class, mappedBy: 'association')]
     private Collection $associationMembers;
 
+    /**
+     * @var Collection<int, AssociationPost>
+     */
+    #[ORM\OneToMany(targetEntity: AssociationPost::class, mappedBy: 'association')]
+    private Collection $associationPosts;
+
     public function __construct()
     {
-        // $this->members = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
         $this->associationMembers = new ArrayCollection();
+        $this->associationPosts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -178,5 +185,35 @@ class Association
             }
         }
         return null;
+    }
+
+    /**
+     * @return Collection<int, AssociationPost>
+     */
+    public function getAssociationPosts(): Collection
+    {
+        return $this->associationPosts;
+    }
+
+    public function addAssociationPost(AssociationPost $associationPost): static
+    {
+        if (!$this->associationPosts->contains($associationPost)) {
+            $this->associationPosts->add($associationPost);
+            $associationPost->setAssociation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAssociationPost(AssociationPost $associationPost): static
+    {
+        if ($this->associationPosts->removeElement($associationPost)) {
+            // set the owning side to null (unless already changed)
+            if ($associationPost->getAssociation() === $this) {
+                $associationPost->setAssociation(null);
+            }
+        }
+
+        return $this;
     }
 }

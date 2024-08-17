@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Association;
 
+use App\Entity\User;
 use App\Repository\AssociationMemberRepository;
 use Doctrine\ORM\Mapping as ORM;
 

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Association;
 
-use App\Entity\Association;
+use App\Entity\Association\Association;
 use App\Entity\User;
-use App\Form\AssociationType;
-use App\Service\AssociationService;
+use App\Form\Association\AssociationType;
+use App\Service\Association\AssociationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,7 +15,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/association')]
 class AssociationController extends AbstractController
 {
-    private $associationService;
+    private AssociationService $associationService;
 
     public function __construct(AssociationService $associationService)
     {
@@ -26,7 +26,7 @@ class AssociationController extends AbstractController
     public function index(): Response
     {
         $associations = $this->associationService->getAllAssociations();
-        return $this->render('association/index.html.twig', [
+        return $this->render('_association/association/index.html.twig', [
             'associations' => $associations,
         ]);
     }
@@ -50,7 +50,7 @@ class AssociationController extends AbstractController
             return $this->redirectToRoute('app_association_show', ['id' => $association->getId()]);
         }
 
-        return $this->render('association/new.html.twig', [
+        return $this->render('_association/association/new.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -58,7 +58,7 @@ class AssociationController extends AbstractController
     #[Route('/{id}', name: 'app_association_show', methods: ['GET'])]
     public function show(Association $association): Response
     {
-        return $this->render('association/show.html.twig', [
+        return $this->render('_association/association/show.html.twig', [
             'association' => $association,
         ]);
     }
@@ -81,7 +81,7 @@ class AssociationController extends AbstractController
             return $this->redirectToRoute('app_association_show', ['id' => $association->getId()]);
         }
 
-        return $this->render('association/edit.html.twig', [
+        return $this->render('_association/association/edit.html.twig', [
             'association' => $association,
             'form' => $form->createView(),
         ]);

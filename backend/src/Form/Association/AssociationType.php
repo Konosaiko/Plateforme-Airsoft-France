@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Association;
 
-use App\Entity\Association;
+use App\Entity\Association\Association;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TelType;

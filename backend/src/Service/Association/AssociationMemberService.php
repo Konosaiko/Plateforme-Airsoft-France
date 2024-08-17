@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Association;
 
-use App\Entity\Association;
-use App\Entity\AssociationMember;
+use App\Entity\Association\Association;
+use App\Entity\Association\AssociationMember;
 use App\Entity\User;
+use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Association;
 
-use App\Entity\Association;
-use App\Entity\AssociationMember;
+use App\Entity\Association\Association;
+use App\Entity\Association\AssociationMember;
 use App\Entity\User;
-use App\Form\InviteMemberType;
-use App\Service\AssociationMemberService;
+use App\Form\Association\InviteMemberType;
+use App\Service\Association\AssociationMemberService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,7 +31,7 @@ class AssociationMemberController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ASSOCIATION_VIEW', $association);
 
-        return $this->render('association_member/index.html.twig', [
+        return $this->render('_association/association_member/index.html.twig', [
             'association' => $association,
             'members' => $association->getAssociationMembers(),
         ]);
@@ -65,7 +65,7 @@ class AssociationMemberController extends AbstractController
             }
         }
 
-        return $this->render('association_member/invite.html.twig', [
+        return $this->render('_association/association_member/invite.html.twig', [
             'association' => $association,
             'form' => $form->createView(),
         ]);
