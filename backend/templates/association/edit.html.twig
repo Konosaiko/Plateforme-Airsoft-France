@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit {{ association.name }}{% endblock %}
+
+{% block body %}
+    <h1>Edit {{ association.name }}</h1>
+
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button type="submit" class="btn btn-primary">Update</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('app_association_show', {'id': association.id}) }}" class="btn btn-secondary mt-3">Back to details</a>
+    <a href="{{ path('app_association_index') }}" class="btn btn-secondary mt-3">Back to list</a>
+{% endblock %}
