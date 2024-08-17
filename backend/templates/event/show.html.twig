@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails de l'événement{% endblock %}
+
+{% block body %}
+    <h1>{{ event.title }}</h1>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Informations de l'événement</h5>
+            <p class="card-text"><strong>Description:</strong> {{ event.description }}</p>
+            <p class="card-text"><strong>Date de début:</strong> {{ event.startDate|date('Y-m-d H:i') }}</p>
+            <p class="card-text"><strong>Date de fin:</strong> {{ event.endDate|date('Y-m-d H:i') }}</p>
+            <p class="card-text"><strong>Lieu:</strong> {{ event.location }}</p>
+            <p class="card-text"><strong>Capacité maximale:</strong> {{ event.maxCapacity ?? 'Non spécifié' }}</p>
+            <p class="card-text"><strong>Prix:</strong> {{ event.price ? event.price|format_currency('EUR') : 'Gratuit' }}</p>
+            <p class="card-text"><strong>Association:</strong> {{ event.association.name }}</p>
+        </div>
+    </div>
+
+    <a href="{{ path('event_index') }}" class="btn btn-secondary">Retour à la liste</a>
+
+    {% if is_granted('edit', event) %}
+        <a href="{{ path('event_edit', {'id': event.id}) }}" class="btn btn-warning">Modifier</a>
+    {% endif %}
+
+    {% if is_granted('delete', event) %}
+        <form method="post" action="{{ path('event_delete', {'id': event.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');" style="display: inline-block;">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
+            <button type="submit" class="btn btn-danger">Supprimer</button>
+        </form>
+    {% endif %}
+{% endblock %}
