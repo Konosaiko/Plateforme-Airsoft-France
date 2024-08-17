@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ association.name }}{% endblock %}
+
+{% block body %}
+    <h1>{{ association.name }}</h1>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <p><strong>Description:</strong> {{ association.description }}</p>
+            <p><strong>Address:</strong> {{ association.address }}</p>
+            <p><strong>Email:</strong> {{ association.email }}</p>
+            <p><strong>Phone:</strong> {{ association.phone }}</p>
+        </div>
+    </div>
+
+    <a href="{{ path('app_association_edit', {'id': association.id}) }}" class="btn btn-warning">Edit</a>
+    <a href="{{ path('app_association_members', {'id': association.id}) }}" class="btn btn-warning">Members</a>
+    <a href="{{ path('app_association_index') }}" class="btn btn-secondary">Back to list</a>
+
+
+
+    <form method="post" action="{{ path('app_association_delete', {'id': association.id}) }}" onsubmit="return confirm('Are you sure you want to delete this association?');" style="display: inline-block;">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ association.id) }}">
+        <button class="btn btn-danger">Delete</button>
+    </form>
+{% endblock %}
