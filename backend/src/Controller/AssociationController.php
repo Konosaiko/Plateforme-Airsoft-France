@@ -40,11 +40,12 @@ class AssociationController extends AbstractController
             throw $this->createAccessDeniedException('You must be logged in to create an association.');
         }
 
-        $form = $this->createForm(AssociationType::class);
+        $association = new Association();
+        $form = $this->createForm(AssociationType::class, $association);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $association = $this->associationService->createAssociation($form->getData(), $user);
+            $association = $this->associationService->createAssociation($association, $user);
             $this->addFlash('success', 'Association created successfully.');
             return $this->redirectToRoute('app_association_show', ['id' => $association->getId()]);
         }
@@ -63,6 +64,7 @@ class AssociationController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_association_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('ASSOCIATION_EDIT', subject: 'association')]
     public function edit(Request $request, Association $association): Response
     {
         $user = $this->getUser();
@@ -70,15 +72,11 @@ class AssociationController extends AbstractController
             throw $this->createAccessDeniedException('You must be logged in to edit an association.');
         }
 
-        if (!$this->associationService->canManageAssociation($association, $user)) {
-            throw $this->createAccessDeniedException('You do not have permission to edit this association.');
-        }
-
         $form = $this->createForm(AssociationType::class, $association);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->associationService->updateAssociation($association, $form->getData(), $user);
+            $this->associationService->updateAssociation($association, $user);
             $this->addFlash('success', 'Association updated successfully.');
             return $this->redirectToRoute('app_association_show', ['id' => $association->getId()]);
         }
@@ -90,15 +88,12 @@ class AssociationController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_association_delete', methods: ['POST'])]
+    #[IsGranted('ASSOCIATION_DELETE', subject: 'association')]
     public function delete(Request $request, Association $association): Response
     {
         $user = $this->getUser();
         if (!$user instanceof User) {
             throw $this->createAccessDeniedException('You must be logged in to delete an association.');
-        }
-
-        if (!$this->associationService->canManageAssociation($association, $user)) {
-            throw $this->createAccessDeniedException('You do not have permission to delete this association.');
         }
 
         if ($this->isCsrfTokenValid('delete'.$association->getId(), $request->request->get('_token'))) {
@@ -108,6 +103,4 @@ class AssociationController extends AbstractController
 
         return $this->redirectToRoute('app_association_index');
     }
-
-    // Ajoutez d'autres méthodes selon vos besoins...
 }
