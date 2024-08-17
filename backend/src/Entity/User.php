@@ -72,11 +72,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'user')]
     private Collection $notifications;
 
+    /**
+     * @var Collection<int, AssociationMember>
+     */
+    #[ORM\OneToMany(targetEntity: AssociationMember::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $associationMembers;
+
     public function __construct()
     {
         $this->teamMembers = new ArrayCollection();
         $this->teams = new ArrayCollection();
         $this->notifications = new ArrayCollection();
+        $this->associationMembers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -339,5 +346,45 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, AssociationMember>
+     */
+    public function getAssociationMembers(): Collection
+    {
+        return $this->associationMembers;
+    }
+
+    public function addAssociationMember(AssociationMember $associationMember): static
+    {
+        if (!$this->associationMembers->contains($associationMember)) {
+            $this->associationMembers->add($associationMember);
+            $associationMember->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAssociationMember(AssociationMember $associationMember): static
+    {
+        if ($this->associationMembers->removeElement($associationMember)) {
+            // set the owning side to null (unless already changed)
+            if ($associationMember->getUser() === $this) {
+                $associationMember->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isMemberOfAssociation(Association $association): bool
+    {
+        foreach ($this->associationMembers as $member) {
+            if ($member->getAssociation() === $association) {
+                return true;
+            }
+        }
+        return false;
     }
 }
