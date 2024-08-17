@@ -14,7 +14,7 @@ class AssociationMember
     private ?int $id = null;
 
     #[ORM\Column(length: 20)]
-    private ?string $role = 'MEMBER';
+    private ?string $role = 'OWNER';
 
     #[ORM\ManyToOne(inversedBy: 'associationMembers')]
     #[ORM\JoinColumn(nullable: false)]
