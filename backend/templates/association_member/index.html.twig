@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Members of {{ association.name }}{% endblock %}
+
+{% block body %}
+    <h1>Members of {{ association.name }}</h1>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% if is_granted('ASSOCIATION_MANAGE_MEMBERS', association) %}
+        <a href="{{ path('app_association_invite', {'id': association.id}) }}" class="btn btn-primary mb-3">Invite Member</a>
+    {% endif %}
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Joined At</th>
+            {% if is_granted('ASSOCIATION_MANAGE_MEMBERS', association) %}
+                <th>Actions</th>
+            {% endif %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for member in association.associationMembers %}
+            <tr>
+                <td>{{ member.user.username }}</td>
+                <td>{{ member.role }}</td>
+                <td>{{ member.joinedAt|date('Y-m-d H:i:s') }}</td>
+                {% if is_granted('ASSOCIATION_MANAGE_MEMBERS', association) and member.user != app.user %}
+                    <td>
+                        <form method="post" action="{{ path('app_association_change_role', {'id': association.id, 'memberId': member.id}) }}" style="display: inline-block;">
+                            <label>
+                                <select name="role" onchange="this.form.submit()">
+                                    <option value="MEMBER" {% if member.role == 'MEMBER' %}selected{% endif %}>Member</option>
+                                    <option value="ADMIN" {% if member.role == 'ADMIN' %}selected{% endif %}>Admin</option>
+                                </select>
+                            </label>
+                        </form>
+                        <form method="post" action="{{ path('app_association_remove_member', {'id': association.id, 'memberId': member.id}) }}" onsubmit="return confirm('Are you sure you want to remove this member?');" style="display: inline-block;">
+                            <button class="btn btn-sm btn-danger">Remove</button>
+                        </form>
+                    </td>
+                {% endif %}
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">No members found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_association_show', {'id': association.id}) }}" class="btn btn-secondary">Back to Association</a>
+{% endblock %}
