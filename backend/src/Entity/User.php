@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use App\Entity\Association\Association;
+use App\Entity\Association\AssociationMember;
+use App\Entity\Association\AssociationPost;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -78,12 +81,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: AssociationMember::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $associationMembers;
 
+    /**
+     * @var Collection<int, AssociationPost>
+     */
+    #[ORM\OneToMany(targetEntity: AssociationPost::class, mappedBy: 'author')]
+    private Collection $associationPosts;
+
     public function __construct()
     {
         $this->teamMembers = new ArrayCollection();
         $this->teams = new ArrayCollection();
         $this->notifications = new ArrayCollection();
         $this->associationMembers = new ArrayCollection();
+        $this->associationPosts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -386,5 +396,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             }
         }
         return false;
+    }
+
+    /**
+     * @return Collection<int, AssociationPost>
+     */
+    public function getAssociationPosts(): Collection
+    {
+        return $this->associationPosts;
+    }
+
+    public function addAssociationPost(AssociationPost $associationPost): static
+    {
+        if (!$this->associationPosts->contains($associationPost)) {
+            $this->associationPosts->add($associationPost);
+            $associationPost->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAssociationPost(AssociationPost $associationPost): static
+    {
+        if ($this->associationPosts->removeElement($associationPost)) {
+            // set the owning side to null (unless already changed)
+            if ($associationPost->getAuthor() === $this) {
+                $associationPost->setAuthor(null);
+            }
+        }
+
+        return $this;
     }
 }
