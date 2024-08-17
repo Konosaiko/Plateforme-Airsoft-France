@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Invite Member to {{ association.name }}{% endblock %}
+
+{% block body %}
+    <h1>Invite Member to {{ association.name }}</h1>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {{ form_start(form) }}
+    <div class="form-group">
+        {{ form_label(form.user) }}
+        {{ form_widget(form.user, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.user) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.role) }}
+        {{ form_widget(form.role, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.role) }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Invite Member</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('app_association_members', {'id': association.id}) }}" class="btn btn-secondary mt-3">Back to Members List</a>
+{% endblock %}
