@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Event;
 
-use App\Entity\Event;
 use App\Entity\Association\Association;
+use App\Entity\Event;
 use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;

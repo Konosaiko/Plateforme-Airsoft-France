@@ -15,6 +15,24 @@
             <p class="card-text"><strong>Capacité maximale:</strong> {{ event.maxCapacity ?? 'Non spécifié' }}</p>
             <p class="card-text"><strong>Prix:</strong> {{ event.price ? event.price|format_currency('EUR') : 'Gratuit' }}</p>
             <p class="card-text"><strong>Association:</strong> {{ event.association.name }}</p>
+            <p class="card-text">
+                <strong>Inscriptions:</strong>
+                {{ activeRegistrationsCount }}
+                {% if event.maxCapacity %}
+                    / {{ event.maxCapacity }}
+                {% endif %}
+            </p>
+            {% if is_granted('ROLE_USER') %}
+                {% if userRegistration %}
+                    <form method="post" action="{{ path('event_cancel_registration', {'id': userRegistration.id}) }}">
+                        <button type="submit" class="btn btn-danger">Annuler l'inscription</button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{{ path('event_register', {'id': event.id}) }}">
+                        <button type="submit" class="btn btn-primary">S'inscrire</button>
+                    </form>
+                {% endif %}
+            {% endif %}
         </div>
     </div>
 
@@ -23,6 +41,10 @@
     {% if is_granted('edit', event) %}
         <a href="{{ path('event_edit', {'id': event.id}) }}" class="btn btn-warning">Modifier</a>
     {% endif %}
+
+
+        <a href="{{ path('association_event_pending_registrations', {'id': event.id}) }}" class="btn btn-warning">Gérer les requêts d'inscriptions</a>
+
 
     {% if is_granted('delete', event) %}
         <form method="post" action="{{ path('event_delete', {'id': event.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');" style="display: inline-block;">

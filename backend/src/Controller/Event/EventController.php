@@ -1,10 +1,13 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Event;
 
 use App\Entity\Event;
-use App\Service\EventService;
+use App\Entity\User;
 use App\Form\EventType;
+use App\Repository\EventRegistrationRepository;
+use App\Service\Event\EventRegistrationService;
+use App\Service\Event\EventService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +28,7 @@ class EventController extends AbstractController
     public function index(): Response
     {
         $events = $this->eventService->getUpcomingEvents();
-        return $this->render('event/index.html.twig', [
+        return $this->render('_event/event/index.html.twig', [
             'events' => $events,
         ]);
     }
@@ -46,17 +49,27 @@ class EventController extends AbstractController
             return $this->redirectToRoute('event_index');
         }
 
-        return $this->render('event/new.html.twig', [
+        return $this->render('_event/event/new.html.twig', [
             'event' => $event,
             'form' => $form->createView(),
         ]);
     }
 
     #[Route('/{id}', name: 'event_show', methods: ['GET'])]
-    public function show(Event $event): Response
+    public function show(Event $event, EventRegistrationService $registrationService): Response
     {
-        return $this->render('event/show.html.twig', [
+        $userRegistration = null;
+        $user = $this->getUser();
+        if ($user instanceof User) {
+            $userRegistration = $registrationService->getUserRegistrationForEvent($user, $event);
+        }
+
+        $activeRegistrationsCount = $registrationService->getActiveRegistrationsCount($event);
+
+        return $this->render('_event/event/show.html.twig', [
             'event' => $event,
+            'userRegistration' => $userRegistration,
+            'activeRegistrationsCount' => $activeRegistrationsCount,
         ]);
     }
 
@@ -74,7 +87,7 @@ class EventController extends AbstractController
             return $this->redirectToRoute('event_show', ['id' => $event->getId()]);
         }
 
-        return $this->render('event/edit.html.twig', [
+        return $this->render('_event/event/edit.html.twig', [
             'event' => $event,
             'form' => $form->createView(),
         ]);
