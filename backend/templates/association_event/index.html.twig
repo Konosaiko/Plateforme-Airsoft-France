@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Inscriptions en attente pour {{ event.title }}</h1>
+
+    {% if pendingRegistrations is empty %}
+        <p>Aucune inscription en attente.</p>
+    {% else %}
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Date d'inscription</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for registration in pendingRegistrations %}
+                <tr>
+                    <td>{{ registration.user.username }}</td>
+                    <td>{{ registration.registeredAt|date('d/m/Y H:i') }}</td>
+                    <td>
+                        <form method="post" action="{{ path('association_event_confirm_registration', {'id': registration.id}) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-success">Confirmer</button>
+                        </form>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ registration.id }}">
+                            Rejeter
+                        </button>
+
+                        <!-- Modal pour le rejet -->
+                        <div class="modal fade" id="rejectModal{{ registration.id }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ registration.id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="rejectModalLabel{{ registration.id }}">Rejeter l'inscription</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form method="post" action="{{ path('association_event_reject_registration', {'id': registration.id}) }}">
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="rejection_reason" class="form-label">Raison du rejet</label>
+                                                <textarea class="form-control" id="rejection_reason" name="rejection_reason" required></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                            <button type="submit" class="btn btn-danger">Rejeter</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}
+
