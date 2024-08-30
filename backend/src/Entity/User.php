@@ -87,6 +87,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: AssociationPost::class, mappedBy: 'author')]
     private Collection $associationPosts;
 
+    /**
+     * @var Collection<int, EventRegistration>
+     */
+    #[ORM\OneToMany(targetEntity: EventRegistration::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $eventRegistrations;
+
     public function __construct()
     {
         $this->teamMembers = new ArrayCollection();
@@ -94,6 +100,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->notifications = new ArrayCollection();
         $this->associationMembers = new ArrayCollection();
         $this->associationPosts = new ArrayCollection();
+        $this->eventRegistrations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -422,6 +429,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($associationPost->getAuthor() === $this) {
                 $associationPost->setAuthor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EventRegistration>
+     */
+    public function getEventRegistrations(): Collection
+    {
+        return $this->eventRegistrations;
+    }
+
+    public function addEventRegistration(EventRegistration $eventRegistration): static
+    {
+        if (!$this->eventRegistrations->contains($eventRegistration)) {
+            $this->eventRegistrations->add($eventRegistration);
+            $eventRegistration->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEventRegistration(EventRegistration $eventRegistration): static
+    {
+        if ($this->eventRegistrations->removeElement($eventRegistration)) {
+            // set the owning side to null (unless already changed)
+            if ($eventRegistration->getUser() === $this) {
+                $eventRegistration->setUser(null);
             }
         }
 
