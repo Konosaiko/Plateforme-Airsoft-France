@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Entity\Association\Association;
 use App\Repository\EventRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -46,9 +48,21 @@ class Event
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $registrationDeadline = null;
+
     #[ORM\ManyToOne(inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Association $association = null;
+
+    #[ORM\ManyToOne(targetEntity: EventFormTemplate::class, inversedBy: 'events')]
+    private $formTemplate;
+
+    /**
+     * @var Collection<int, EventRegistration>
+     */
+    #[ORM\OneToMany(targetEntity: EventRegistration::class, mappedBy: 'event', orphanRemoval: true)]
+    private Collection $eventRegistrations;
 
     public function getId(): ?int
     {
@@ -59,6 +73,7 @@ class Event
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
+        $this->eventRegistrations = new ArrayCollection();
     }
 
     public function getTitle(): ?string
@@ -156,6 +171,39 @@ class Event
         return $this;
     }
 
+    /**
+     * Calcule dynamiquement le nombre de places disponibles pour l'événement.
+     *
+     * Méthode précise en temps réel mais peut nécessiter
+     * une optimisation future si le nombre d'inscriptions devient très important.
+     * à mettre à jour pour la v1.0
+     *
+     * @return int|null Le nombre de places disponibles, ou null si la capacité est illimitée
+     */
+    public function getAvailableSpots(): ?int
+    {
+        if ($this->maxCapacity === null) {
+            return null;
+        }
+
+        $confirmedCount = $this->eventRegistrations
+            ->filter(fn(EventRegistration $registration) => $registration->getStatus() === 'confirmed')
+            ->count();
+
+        return max(0, $this->maxCapacity - $confirmedCount);
+    }
+
+    public function canRegister(): bool
+    {
+        if ($this->registrationDeadline && $this->registrationDeadline < new \DateTime()) {
+            return false;
+        }
+
+        return $this->getAvailableSpots() === null || $this->getAvailableSpots() > 0;
+    }
+
+
+
     public function getStatus(): string
     {
         return $this->status;
@@ -184,6 +232,16 @@ class Event
         $this->updatedAt = new \DateTimeImmutable();
     }
 
+    public function getRegistrationDeadline(): ?\DateTimeInterface
+    {
+        return $this->registrationDeadline;
+    }
+
+    public function setRegistrationDeadline(?\DateTimeInterface $registrationDeadline): void
+    {
+        $this->registrationDeadline = $registrationDeadline;
+    }
+
     public function getAssociation(): ?Association
     {
         return $this->association;
@@ -192,6 +250,36 @@ class Event
     public function setAssociation(?Association $association): static
     {
         $this->association = $association;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EventRegistration>
+     */
+    public function getEventRegistrations(): Collection
+    {
+        return $this->eventRegistrations;
+    }
+
+    public function addEventRegistration(EventRegistration $eventRegistration): static
+    {
+        if (!$this->eventRegistrations->contains($eventRegistration)) {
+            $this->eventRegistrations->add($eventRegistration);
+            $eventRegistration->setEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEventRegistration(EventRegistration $eventRegistration): static
+    {
+        if ($this->eventRegistrations->removeElement($eventRegistration)) {
+            // set the owning side to null (unless already changed)
+            if ($eventRegistration->getEvent() === $this) {
+                $eventRegistration->setEvent(null);
+            }
+        }
 
         return $this;
     }
