@@ -15,6 +15,7 @@ class EventVoter extends Voter
     const CREATE = 'create';
     const EDIT = 'edit';
     const DELETE = 'delete';
+    const MANAGE_REGISTRATIONS = 'manage_registrations';
 
     private $security;
     private $entityManager;
@@ -27,7 +28,7 @@ class EventVoter extends Voter
 
     protected function supports(string $attribute, $subject): bool
     {
-        return in_array($attribute, [self::CREATE, self::EDIT, self::DELETE])
+        return in_array($attribute, [self::CREATE, self::EDIT, self::DELETE, self::MANAGE_REGISTRATIONS])
             && ($subject instanceof Event || $subject === null);
     }
 
@@ -38,7 +39,6 @@ class EventVoter extends Voter
             return false;
         }
 
-        // Si l'utilisateur est un admin global, il a tous les droits
         if ($this->security->isGranted('ROLE_ADMIN')) {
             return true;
         }
@@ -51,7 +51,8 @@ class EventVoter extends Voter
                 return $this->canCreate($event, $user);
             case self::EDIT:
             case self::DELETE:
-                return $this->canEditOrDelete($event, $user);
+            case self::MANAGE_REGISTRATIONS:
+                return $this->canManageEvent($event, $user);
         }
 
         throw new \LogicException('This code should not be reached!');
@@ -59,16 +60,14 @@ class EventVoter extends Voter
 
     private function canCreate(?Event $event, User $user): bool
     {
-        // Vérifiez si l'utilisateur est un admin ou le créateur de l'association
         if ($event && $event->getAssociation()) {
             return $this->isAdminOrCreator($event->getAssociation(), $user);
         }
         return false;
     }
 
-    private function canEditOrDelete(Event $event, User $user): bool
+    private function canManageEvent(Event $event, User $user): bool
     {
-        // Vérifiez si l'utilisateur est un admin ou le créateur de l'association
         return $this->isAdminOrCreator($event->getAssociation(), $user);
     }
 
