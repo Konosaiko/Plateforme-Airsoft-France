@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Templates de formulaire pour {{ association.name }}{% endblock %}
+
+{% block body %}
+    <h1>Templates de formulaire pour {{ association.name }}</h1>
+
+    <a href="{{ path('event_form_template_new', {'id': association.id}) }}" class="btn btn-primary">Créer un nouveau template</a>
+
+    {% if templates|length > 0 %}
+        <table class="table mt-3">
+            <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Nombre de champs</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for template in templates %}
+                <tr>
+                    <td>{{ template.name }}</td>
+                    <td>{{ template.fields|length }}</td>
+                    <td>
+                        <a href="{{ path('event_form_template_edit', {'id': association.id, 'templateId': template.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                        <form method="post" action="{{ path('event_form_template_delete', {'id': association.id, 'templateId': template.id}) }}" style="display: inline-block" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce template ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ template.id) }}">
+                            <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="mt-3">Aucun template de formulaire n'a été créé pour cette association.</p>
+    {% endif %}
+
+    <a href="{{ path('app_association_show', {'id': association.id}) }}" class="btn btn-secondary">Retour à l'association</a>
+{% endblock %}
