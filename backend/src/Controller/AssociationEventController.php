@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\Event;
 use App\Entity\EventRegistration;
 use App\Repository\EventRegistrationRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Event\EventRegistrationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,6 +15,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/association/event')]
 class AssociationEventController extends AbstractController
 {
+    private EventRegistrationService $eventRegistrationService;
+
+    public function __construct(EventRegistrationService $eventRegistrationService)
+    {
+        $this->eventRegistrationService = $eventRegistrationService;
+    }
+
     #[Route('/{id}/pending-registrations', name: 'association_event_pending_registrations')]
     #[IsGranted('manage_registrations', subject: 'event')]
     public function pendingRegistrations(Event $event, EventRegistrationRepository $registrationRepository): Response
@@ -28,26 +35,20 @@ class AssociationEventController extends AbstractController
     }
 
     #[Route('/registration/{id}/confirm', name: 'association_event_confirm_registration', methods: ['POST'])]
-
-    public function confirmRegistration(EventRegistration $registration, EntityManagerInterface $entityManager): Response
+    public function confirmRegistration(EventRegistration $registration): Response
     {
         $this->denyAccessUnlessGranted('manage_registrations', $registration->getEvent());
-        $registration->setStatus('confirmed');
-        $entityManager->flush();
+
+        $this->eventRegistrationService->confirmRegistration($registration);
 
         $this->addFlash('success', 'Inscription confirmée avec succès.');
-
-        // ajouter notification à l'utilisateur
 
         return $this->redirectToRoute('association_event_pending_registrations', ['id' => $registration->getEvent()->getId()]);
     }
 
     #[Route('/registration/{id}/reject', name: 'association_event_reject_registration', methods: ['POST'])]
-    public function rejectRegistration(
-        Request $request,
-        EventRegistration $registration,
-        EntityManagerInterface $entityManager
-    ): Response {
+    public function rejectRegistration(Request $request, EventRegistration $registration): Response
+    {
         $this->denyAccessUnlessGranted('manage_registrations', $registration->getEvent());
 
         $rejectionReason = $request->request->get('rejection_reason');
@@ -59,9 +60,7 @@ class AssociationEventController extends AbstractController
             ]);
         }
 
-        $registration->setStatus('rejected');
-        $registration->setRejectionReason($rejectionReason);
-        $entityManager->flush();
+        $this->eventRegistrationService->rejectRegistration($registration, $rejectionReason);
 
         $this->addFlash('success', 'Inscription rejetée avec succès.');
 
