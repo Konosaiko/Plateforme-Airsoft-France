@@ -2,6 +2,7 @@
 
 namespace App\Entity\Association;
 
+use App\Entity\EventFormTemplate;
 use App\Entity\User;
 use App\Repository\AssociationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -50,12 +51,16 @@ class Association
     #[ORM\OneToMany(targetEntity: AssociationPost::class, mappedBy: 'association')]
     private Collection $associationPosts;
 
+    #[ORM\OneToMany(targetEntity: EventFormTemplate::class, mappedBy: 'association', orphanRemoval: true)]
+    private Collection $formTemplates;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
         $this->associationMembers = new ArrayCollection();
         $this->associationPosts = new ArrayCollection();
+        $this->formTemplates = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -211,6 +216,32 @@ class Association
             // set the owning side to null (unless already changed)
             if ($associationPost->getAssociation() === $this) {
                 $associationPost->setAssociation(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getFormTemplates(): Collection
+    {
+        return $this->formTemplates;
+    }
+
+    public function addFormTemplate(EventFormTemplate $formTemplate): self
+    {
+        if (!$this->formTemplates->contains($formTemplate)) {
+            $this->formTemplates->add($formTemplate);
+            $formTemplate->setAssociation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFormTemplate(EventFormTemplate $formTemplate): self
+    {
+        if ($this->formTemplates->removeElement($formTemplate)) {
+            if ($formTemplate->getAssociation() === $this) {
+                $formTemplate->setAssociation(null);
             }
         }
 
