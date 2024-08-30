@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau template de formulaire{% endblock %}
+
+{% block body %}
+    <h1>Créer un nouveau template de formulaire</h1>
+
+    {{ form_start(form) }}
+    {{ form_row(form.name) }}
+
+    <h3>Champs du formulaire</h3>
+    <ul class="fields-list" data-prototype="{{ form_widget(form.fields.vars.prototype)|e('html_attr') }}">
+        {% for field in form.fields %}
+            <li>
+                {{ form_row(field.name) }}
+                {{ form_row(field.type) }}
+                {{ form_row(field.required) }}
+                {{ form_row(field.label) }}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <button type="button" class="btn btn-secondary add-another-field">Ajouter un champ</button>
+    <button type="submit" class="btn btn-primary">Créer le template</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('event_form_template_index', {'id': association.id}) }}" class="btn btn-secondary mt-3">Retour à la liste</a>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM fully loaded and parsed');
+            const list = document.querySelector('.fields-list');
+            const addButton = document.querySelector('.add-another-field');
+
+            if (!list || !addButton) {
+                console.error('Required elements not found');
+                return;
+            }
+
+            let counter = list.children.length;
+            console.log('Initial field count:', counter);
+
+            addButton.addEventListener('click', function(e) {
+                console.log('Add button clicked');
+                const prototype = list.dataset.prototype;
+                if (!prototype) {
+                    console.error('Prototype not found in data attribute');
+                    return;
+                }
+                const newForm = prototype.replace(/__name__/g, counter);
+                const li = document.createElement('li');
+                li.innerHTML = newForm;
+                list.appendChild(li);
+                counter++;
+                console.log('New field added. Total fields:', counter);
+            });
+        });
+    </script>
+{% endblock %}
