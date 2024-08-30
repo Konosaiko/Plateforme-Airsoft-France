@@ -24,9 +24,22 @@
             </p>
             {% if is_granted('ROLE_USER') %}
                 {% if userRegistration %}
-                    <form method="post" action="{{ path('event_cancel_registration', {'id': userRegistration.id}) }}">
-                        <button type="submit" class="btn btn-danger">Annuler l'inscription</button>
-                    </form>
+                    {% if userRegistration.status == 'confirmed' %}
+                        <p class="text-success">Vous êtes inscrit à cet événement.</p>
+                        <form method="post" action="{{ path('event_cancel_registration', {'id': userRegistration.id}) }}">
+                            <button type="submit" class="btn btn-danger">Annuler l'inscription</button>
+                        </form>
+                    {% elseif userRegistration.status == 'pending' %}
+                        <p class="text-warning">Votre inscription est en attente de confirmation.</p>
+                        <form method="post" action="{{ path('event_cancel_registration', {'id': userRegistration.id}) }}">
+                            <button type="submit" class="btn btn-warning">Annuler la demande d'inscription</button>
+                        </form>
+                    {% elseif userRegistration.status == 'rejected' %}
+                        <p class="text-danger">Votre inscription a été rejetée.</p>
+                        {% if userRegistration.rejectionReason %}
+                            <p class="text-muted"><strong>Raison du rejet :</strong> {{ userRegistration.rejectionReason }}</p>
+                        {% endif %}
+                    {% endif %}
                 {% else %}
                     <form method="post" action="{{ path('event_register', {'id': event.id}) }}">
                         <button type="submit" class="btn btn-primary">S'inscrire</button>
