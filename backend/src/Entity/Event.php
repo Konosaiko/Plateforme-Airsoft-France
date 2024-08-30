@@ -55,14 +55,14 @@ class Event
     #[ORM\JoinColumn(nullable: false)]
     private ?Association $association = null;
 
-    #[ORM\ManyToOne(targetEntity: EventFormTemplate::class, inversedBy: 'events')]
-    private $formTemplate;
-
     /**
      * @var Collection<int, EventRegistration>
      */
     #[ORM\OneToMany(targetEntity: EventRegistration::class, mappedBy: 'event', orphanRemoval: true)]
     private Collection $eventRegistrations;
+
+    #[ORM\ManyToOne(targetEntity: EventFormTemplate::class, inversedBy: 'events')]
+    private ?EventFormTemplate $formTemplate = null;
 
     public function getId(): ?int
     {
@@ -281,6 +281,17 @@ class Event
             }
         }
 
+        return $this;
+    }
+
+    public function getFormTemplate(): ?EventFormTemplate
+    {
+        return $this->formTemplate;
+    }
+
+    public function setFormTemplate(?EventFormTemplate $formTemplate): self
+    {
+        $this->formTemplate = $formTemplate;
         return $this;
     }
 }
